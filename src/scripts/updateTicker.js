@@ -26,8 +26,7 @@ const exchange = new ccxt.binance({
 })
 
 const main = async () => {
-  console.log('Run updateTicker')
-  const delay = 500
+  console.log(`[${new Date()}] Run updateTicker`)
 
   let tickers = await Models.Ticker.find()
   console.log(`Total tickers in database: ${tickers.length}`)
@@ -36,7 +35,6 @@ const main = async () => {
   let tickersTable = await exchange.fetchTickers(symbols)
   let promises = []
   symbols.forEach((symbol) => {
-    // console.log(symbol)
     let ticker = tickersTable[symbol]
     ticker.count = ticker.info.count || 0
     let p = Models.Ticker.updateOne({
@@ -47,6 +45,6 @@ const main = async () => {
   console.log(`Updating all tickers...`)
   await Promise.all(promises)
 
-  console.log('done.')
+  console.log(`[${new Date()}] Done.`)
   mongoose.disconnect()
 }
