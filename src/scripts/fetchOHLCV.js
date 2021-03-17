@@ -27,7 +27,7 @@ const exchange = new ccxt.binance({
 
 const main = async () => {
   console.log('Run fetchOHLCV')
-  const delay = 100
+  const delay = 300
   const now = new Date()
   let tickers = await Models.Ticker.find({
     hasOHLCV: true
