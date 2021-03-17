@@ -28,35 +28,94 @@ const exchange = new ccxt.binance({
 const main = async () => {
   console.log('Run fetchTicker')
   const delay = 500
-  const TickersLimit = 200
-  let matchedTickers = []
+  // const TickersLimit = 200
+  // let matchedTickers = []
+  let matchedUSDTTickers = []
+  let matchedBUSDTickers = []
+  let usdtOHLCVLimit = 150
+  let busdOHLCVLimit = 50
+  
   let markets = await exchange.loadMarkets()
 
   console.log('markets count: ' + exchange.symbols.length)
+  // let usdtCount = 0, busdCount = 0
   for (key in markets) {
+    // if (markets[key].quote === 'USDT' || markets[key].quote === 'BUSD') {
+    //   let ticker = await exchange.fetchTicker(key)
+    //   ticker.count = ticker.info.count || 0
+    //   console.log(`${key}: ${ticker.quoteVolume} ${ticker.count}`)
+    //   matchedTickers.push(ticker)
+      
+    //   await new Promise (resolve => setTimeout (resolve, delay))
+    // }
+    if (key === 'BUSD/USDT') continue
     if (markets[key].quote === 'USDT' || markets[key].quote === 'BUSD') {
       let ticker = await exchange.fetchTicker(key)
       ticker.count = ticker.info.count || 0
-      console.log(`${key}: ${ticker.count}`)
-      matchedTickers.push(ticker)
-      
+      if (ticker.count === 1) continue // ignore not exist case
+      if (key.contains('UP/') || key.contains('DOWN/')) continue
+      if (markets[key].quote === 'USDT') {
+        matchedUSDTTickers.push(ticker)
+      } else if (markets[key].quote === 'BUSD') {
+        matchedBUSDTickers.push(ticker)
+      }
+      console.log(`${key}: ${ticker.quoteVolume} ${ticker.count}`)
       await new Promise (resolve => setTimeout (resolve, delay))
     }
   }
-  console.log(`Total matched tickers count: ${matchedTickers.length}`)
-  matchedTickers.sort((a, b) => {
-    return a.count - b.count
+  console.log(`USDT tickers count: ${matchedUSDTTickers.length}`)
+  console.log(`BUSD tickers count: ${matchedBUSDTickers.length}`)
+  matchedUSDTTickers.sort((a, b) => {
+    return a.quoteVolume - b.quoteVolume
+  }).reverse()
+  matchedBUSDTickers.sort((a, b) => {
+    return a.quoteVolume - b.quoteVolume
   }).reverse()
 
-  console.log(`Saving top ${TickersLimit} tickers...`)
-  for (let i = 0; i < matchedTickers.length && i < TickersLimit; i++) {
-    let ticker = matchedTickers[i]
+  console.log(`Saving ${matchedUSDTTickers.length} USDT tickers...`)
+  for (let i = 0; i < matchedUSDTTickers.length; i++) {
+    let ticker = matchedUSDTTickers[i]
+    if (i < usdtOHLCVLimit) {
+      ticker.hasOHLCV = true
+    } else {
+      ticker.hasOHLCV = false
+    }
     await Models.Ticker.findOneAndUpdate({
       symbol: ticker.symbol,
     }, ticker, {
       upsert: true
     }).exec()
   }
+  console.log(`Saving ${matchedBUSDTickers.length} BUSD tickers...`)
+  for (let i = 0; i < matchedBUSDTickers.length; i++) {
+    let ticker = matchedBUSDTickers[i]
+    if (i < busdOHLCVLimit) {
+      ticker.hasOHLCV = true
+    } else {
+      ticker.hasOHLCV = false
+    }
+    await Models.Ticker.findOneAndUpdate({
+      symbol: ticker.symbol,
+    }, ticker, {
+      upsert: true
+    }).exec()
+  }
+
+
+  // console.log(`Total matched tickers count: ${matchedTickers.length}`)
+  // matchedTickers.sort((a, b) => {
+  //   return a.count - b.count
+  // }).reverse()
+
+  // console.log(`Saving top ${TickersLimit} tickers...`)
+  // for (let i = 0; i < matchedTickers.length && i < TickersLimit; i++) {
+  //   let ticker = matchedTickers[i]
+  //   await Models.Ticker.findOneAndUpdate({
+  //     symbol: ticker.symbol,
+  //   }, ticker, {
+  //     upsert: true
+  //   }).exec()
+  // }
   console.log('done.')
   mongoose.disconnect()
 }

@@ -27,10 +27,12 @@ const exchange = new ccxt.binance({
 
 const main = async () => {
   console.log('Run fetchOHLCV')
-  const delay = 500
+  const delay = 100
   const now = new Date()
-  let tickers = await Models.Ticker.find()
-  console.log(`Total tickers in database: ${tickers.length}`)
+  let tickers = await Models.Ticker.find({
+    hasOHLCV: true
+  })
+  console.log(`Total tickers to be fetched: ${tickers.length}`)
   let symbols = tickers.map(t => t.symbol)
   console.log(`Fetching all OHLCVs...`)
   for (let i = 0; i < symbols.length; i++) {
@@ -72,6 +74,7 @@ const main = async () => {
           }).exec()
           console.log(`${symbol} ${dailyObj.date} OHLCV added`)
         }
+        await new Promise (resolve => setTimeout (resolve, delay))
       }
       sinceDate.setDate(sinceDate.getDate() + 500) // load more 500 days if need
     }

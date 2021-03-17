@@ -28,6 +28,7 @@ const tickerSchema = new Schema({
   baseVolume: Number,
   quoteVolume: Number,
   count: Number, // from info.count
+  hasOHLCV: Boolean,
 })
 tickerSchema.index({ symbol: 1 })
 
