@@ -26,7 +26,7 @@ const exchange = new ccxt.binance({
 })
 
 const main = async () => {
-  console.log('Run fetchOHLCV')
+  console.log(`[${new Date()}] Run fetchOHLCV`)
   const delay = 500
   const now = new Date()
   let tickers = await Models.Ticker.find({
@@ -80,21 +80,6 @@ const main = async () => {
     }
   }
 
-
-  // let tickersTable = await exchange.fetchTickers(symbols)
-  // let promises = []
-  // symbols.forEach((symbol) => {
-  //   // console.log(symbol)
-  //   let ticker = tickersTable[symbol]
-  //   ticker.count = ticker.info.count || 0
-  //   let p = Models.Ticker.updateOne({
-  //     symbol,
-  //   }, ticker)
-  //   promises.push(p)
-  // })
-  // console.log(`Updating all tickers...`)
-  // await Promise.all(promises)
-
-  console.log('done.')
+  console.log(`[${new Date()}] Done.`)
   mongoose.disconnect()
 }
