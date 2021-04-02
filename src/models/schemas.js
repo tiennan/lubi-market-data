@@ -31,6 +31,8 @@ const tickerSchema = new Schema({
   hasOHLCV: Boolean,
 })
 tickerSchema.index({ symbol: 1 })
+tickerSchema.index({ datetime: -1 })
+tickerSchema.index({ symbol: 1, datetime: -1 })
 
 const dailyOHLCVSchema = new Schema({
   symbol: String, // Symbol

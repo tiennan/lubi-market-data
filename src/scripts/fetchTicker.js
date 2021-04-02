@@ -43,7 +43,7 @@ const main = async () => {
       let ticker = await exchange.fetchTicker(key)
       ticker.count = ticker.info.count || 0
       if (ticker.count === 1) continue // ignore not exist case
-      if (key.contains('UP/') || key.contains('DOWN/')) continue
+      if (key.includes('UP/') || key.includes('DOWN/')) continue
       if (markets[key].quote === 'USDT') {
         matchedUSDTTickers.push(ticker)
       } else if (markets[key].quote === 'BUSD') {
