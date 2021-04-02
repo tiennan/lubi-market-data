@@ -34,6 +34,7 @@ const main = async () => {
   console.log(`Fetching all tickers...`)
   let tickersTable = await exchange.fetchTickers(symbols)
   let promises = []
+  let newTickers = []
   symbols.forEach((symbol) => {
     let ticker = tickersTable[symbol]
     ticker.count = ticker.info.count || 0
@@ -41,9 +42,12 @@ const main = async () => {
       symbol,
     }, ticker)
     promises.push(p)
+    newTickers.push(ticker)
   })
   console.log(`Updating all tickers...`)
   await Promise.all(promises)
+  console.log(`Inserting all tickers into history...`)
+  await Models.TickerHistory.insertMany(newTickers)
 
   console.log(`[${new Date()}] Done.`)
   mongoose.disconnect()
