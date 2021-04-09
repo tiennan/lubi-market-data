@@ -101,7 +101,58 @@ dailyOHLCVSchema.statics.verify = function(dailyObj) {
 
 dailyOHLCVSchema.index({ symbol: 1, date: 1 })
 
+const actionSchema = new Schema({
+  type: String, // ActionTypeEnum
+  symbol: String,
+  date: Date,
+  cost: Number,
+  isTest: Boolean,
+  status: String, // ActionStatusEnum
+  triggers: {
+    profitPrice: Number,
+    lossPrice: Number,
+    endTimeSecond: Number,
+  },
+  openInfo: { // Filled after status=OPEN
+    datetime: Date,
+    price: Number,
+    amount: Number,
+    cost: Number,
+  },
+  closeInfo: { // Filled after status=CLOSED
+    datetime: Date,
+    price: Number,
+    amount: Number,
+    cost: Number,
+  },
+  openBy: String, // Bot name
+  closeBy: String, // ActionCloseByEnum
+})
+
+const ActionCloseByEnum = {
+  TRIGGER_PROFIT: 'TRIGGER_PROFIT',
+  TRIGGER_LOSS: 'TRIGGER_LOSS',
+  TRIGGER_ENDTIME: 'TRIGGER_ENDTIME',
+  STOP_SIGNAL: 'STOP_SIGNAL',
+}
+
+const ActionTypeEnum = {
+  BUY: 'BUY',
+  SELL: 'SELL',
+  STOP: 'STOP',
+}
+const ActionStatusEnum = {
+  NEW: 'NEW',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  STOPPED: 'STOPPED',
+}
+
 module.exports = {
   tickerSchema,
   dailyOHLCVSchema,
+  actionSchema,
+  ActionTypeEnum,
+  ActionStatusEnum,
+  ActionCloseByEnum,
 }
