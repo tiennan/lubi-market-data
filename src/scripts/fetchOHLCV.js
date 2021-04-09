@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 require('dotenv').config()
 global.Config = require('../config')
 const Models = require('../models')
+const Utils = require('../utils')
 
 console.log('connecting mongodb...')
 mongoose.connect(process.env.MONGODB_URI, {
@@ -30,7 +31,7 @@ const main = async () => {
   const delay = 500
   const now = new Date()
   let tickers = await Models.Ticker.find({
-    hasOHLCV: true
+    hasOHLCV: true,
   })
   console.log(`Total tickers to be fetched: ${tickers.length}`)
   let symbols = tickers.map(t => t.symbol)
@@ -79,7 +80,9 @@ const main = async () => {
       sinceDate.setDate(sinceDate.getDate() + 500) // load more 500 days if need
     }
   }
-
   console.log(`[${new Date()}] Done.`)
+
+  await Utils.Adviser.run()
+
   mongoose.disconnect()
 }
