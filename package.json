@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/tiennan/lubi-market-data#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "ccxt": "^1.42.26",
     "dotenv": "^8.2.0",
     "mongoose": "^5.11.18",
