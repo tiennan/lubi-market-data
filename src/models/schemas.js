@@ -91,6 +91,20 @@ dailyOHLCVSchema.statics.pushMinute = function(dailyObj, tohlcvArray) {
     dailyObj.minutes.volume.push(tohlcvArray[5])
   }
 }
+dailyOHLCVSchema.statics.removeLastMinute = function(dailyObj) {
+  if (dailyObj.minutes) {
+    let newLength = dailyObj.minutes.close.length - 1
+    dailyObj.minutes.open.length = newLength
+    dailyObj.minutes.high.length = newLength
+    dailyObj.minutes.low.length = newLength
+    dailyObj.minutes.close.length = newLength
+    dailyObj.minutes.volume.length = newLength
+  }
+}
+dailyOHLCVSchema.statics.getMinutesLength = function(dailyObj) {
+  if (!dailyObj.minutes) return 0
+  return dailyObj.minutes.close.length
+}
 dailyOHLCVSchema.statics.verify = function(dailyObj) {
   if (!dailyObj.minutes || dailyObj.minutes.length > 1440) {
     throw new Error(dailyObj.toString())
