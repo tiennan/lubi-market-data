@@ -48,8 +48,18 @@ const main = async () => {
       for (let j = 0; j < listOHLCV.length; j++) {
         let dailyObj = Models.DailyOHLCV.parseTOHLCVArray(listOHLCV[j])
         dailyObj.symbol = symbol
-        console.log(`Fetching ${symbol} 1m since ${dailyObj.date} limit 1000`)
-        let minutesOHLCVList = await exchange.fetchOHLCV(symbol, '1m', dailyObj.date.getTime(), 1000)
+        let sinceDateTime = dailyObj.date.getTime()
+        let currentMinutesLength = 0
+        if (lastOHLCV && sinceDateTime === lastOHLCV.date.getTime()) {
+          dailyObj.minutes = lastOHLCV.minutes
+          Models.DailyOHLCV.removeLastMinute(dailyObj)
+          currentMinutesLength = Models.DailyOHLCV.getMinutesLength(dailyObj)
+          sinceDateTime += currentMinutesLength * 60 * 1000
+        }
+
+        console.log(`Fetching ${symbol} 1m since ${new Date(sinceDateTime)} limit 1000`)
+        let minutesOHLCVList = await exchange.fetchOHLCV(symbol, '1m', sinceDateTime, 1000)
+        console.log(`count: ${minutesOHLCVList.length}`)
         if (minutesOHLCVList.length === 0) {
           // To avoid [] case, skip whole day data
           console.log(`[Warn] ${dailyObj.symbol} ${dailyObj.date} miss whole day minutes data, skip this day.`)
@@ -58,10 +68,13 @@ const main = async () => {
         minutesOHLCVList.forEach((tohlcvArray) => {
           Models.DailyOHLCV.pushMinute(dailyObj, tohlcvArray)
         })
-        let secondSince = dailyObj.date.getTime() + (1000 * 60 * 1000)
-        if (secondSince < now.getTime()) {
-          console.log(`Fetching ${symbol} 1m since ${new Date(secondSince)} limit 440`)
-          minutesOHLCVList = await exchange.fetchOHLCV(symbol, '1m', secondSince, 440)
+        currentMinutesLength = Models.DailyOHLCV.getMinutesLength(dailyObj)
+        sinceDateTime = dailyObj.date.getTime() + currentMinutesLength * 60 * 1000
+        if (sinceDateTime < now.getTime()) {
+          let limit = Math.min(440, 1440 - currentMinutesLength)
+          console.log(`Fetching ${symbol} 1m since ${new Date(sinceDateTime)} limit ${limit}`)
+          minutesOHLCVList = await exchange.fetchOHLCV(symbol, '1m', sinceDateTime, limit)
+          console.log(`count: ${minutesOHLCVList.length}`)
           minutesOHLCVList.forEach((tohlcvArray) => {
             Models.DailyOHLCV.pushMinute(dailyObj, tohlcvArray)
           })
