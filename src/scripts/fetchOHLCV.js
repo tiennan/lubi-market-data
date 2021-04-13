@@ -95,7 +95,7 @@ const main = async () => {
   }
   console.log(`[${new Date()}] Done.`)
 
-  await Utils.Adviser.run()
+  // await Utils.Adviser.run()
 
   mongoose.disconnect()
 }
