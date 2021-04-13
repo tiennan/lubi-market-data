@@ -36,6 +36,8 @@ jobs:
           echo BINANCE_SECRET_KEY="${{ secrets.BINANCE_SECRET_KEY }}" >> .env
           echo TELEGRAM_API_KEY="${{ secrets.TELEGRAM_API_KEY }}" >> .env
           echo TELEGRAM_RECEIVER_ID="${{ secrets.TELEGRAM_RECEIVER_ID }}" >> .env
+          echo API_DEARDEER_URL="${{ secrets.API_DEARDEER_URL }}" >> .env
+          echo API_DEARDEER_KEY="${{ secrets.API_DEARDEER_KEY }}" >> .env
       - name: Build
         run: |
           mkdir ./dist

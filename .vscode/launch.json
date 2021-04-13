@@ -7,6 +7,15 @@
     {
       "type": "pwa-node",
       "request": "launch",
+      "name": "fetchOHLCVDis",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/src/scripts/fetchOHLCVDis.js"
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
       "name": "fetchOHLCV",
       "skipFiles": [
         "<node_internals>/**"

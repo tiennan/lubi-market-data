@@ -6,6 +6,7 @@ const Indicators = require('./indicators')
 const Adviser = require('./adviser')
 const Common = require('./common')
 const Sender = require('./sender')
+const API = require('./api')
 
 module.exports = {
   Candlestick,
@@ -16,4 +17,5 @@ module.exports = {
   Adviser,
   Common,
   Sender,
+  API,
 }
