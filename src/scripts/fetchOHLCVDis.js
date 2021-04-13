@@ -55,18 +55,20 @@ exchange.fetchOHLCVDis = async function(symbol, timeframe = '1m', since = undefi
       method = 'dapiPublicGetKlines';
   }
   const requestObj = this.sign ('klines', 'public', 'GET', this.extend (request, params))
-  const ret = await Utils.API.curl(requestObj.url, 'GET')
-  const response = JSON.parse(ret.response)
-  // let requestObj = this.extend (request, params)
-  // const response = await this[method] (this.extend (request, params));
-  //
-  //     [
-  //         [1591478520000,"0.02501300","0.02501800","0.02500000","0.02500000","22.19000000",1591478579999,"0.55490906",40,"10.92900000","0.27336462","0"],
-  //         [1591478580000,"0.02499600","0.02500900","0.02499400","0.02500300","21.34700000",1591478639999,"0.53370468",24,"7.53800000","0.18850725","0"],
-  //         [1591478640000,"0.02500800","0.02501100","0.02500300","0.02500800","154.14200000",1591478699999,"3.85405839",97,"5.32300000","0.13312641","0"],
-  //     ]
-  //
-  return this.parseOHLCVs (response, market, timeframe, since, limit);
+  let ret = await Utils.API.curl(requestObj.url, 'GET')
+  if (!ret.response) { // fetch again
+    ret = await Utils.API.curl(requestObj.url, 'GET')
+  }
+  if (!ret.response) {
+    return []
+  }
+  try {
+    const response = JSON.parse(ret.response)
+    return this.parseOHLCVs (response, market, timeframe, since, limit);
+  } catch (ex) {
+    console.log(ex)
+  }
+  return []
 }
 
 const fetchOHLCVBySymbol = async (symbol, now) => {
@@ -128,8 +130,11 @@ const fetchOHLCVBySymbol = async (symbol, now) => {
 const main = async () => {
   console.log(`[${new Date()}] Run fetchOHLCVDis`)
   const now = new Date()
+  const today = Utils.Common.getTodayDate()
+  const todayISOString = today.toISOString()
   let tickers = await Models.Ticker.find({
     hasOHLCV: true,
+    datetime: { $gt: todayISOString },
   })
   
   console.log(`Total tickers to be fetched: ${tickers.length}`)
